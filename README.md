@@ -1,52 +1,103 @@
-# Chemical Diversity Workflow (RDKit)
-**Butina-based diverse subset selection + comprehensive subset validation**
+# Chemical Diversity Selection & Validation Toolkit
 
-This repository provides an end-to-end RDKit workflow to:
-1) Select a structurally diverse subset from a parent SDF library using **Butina clustering** (ECFP4/Morgan radius=2, 2048-bit; Tanimoto distance). :contentReference[oaicite:0]{index=0}  
-2) Validate the selected subset vs. the full library using descriptors, scaffold diversity, PAINS screening, coverage analysis, and publication-style plots. :contentReference[oaicite:1]{index=1}  
+A Python-based workflow designed to **select structurally diverse molecular subsets** from large chemical libraries and **validate chemical space coverage** with **publication-quality plots**.
 
----
-
-## Scripts
-
-### 1) `butina_diversity_selector.py`  (Selection)
-Selects representative molecules (cluster centroids) using Butina clustering and exports:
-- Selected subset **SDF**
-- A concise **TXT report**
-- PCA chemical space plot + cluster-size distribution plot :contentReference[oaicite:2]{index=2}  
-
-**Main settings (edit in `__main__`):**
-- `INPUT_SDF`, `OUTPUT_SDF`
-- `TARGET_COUNT`
-- `CUTOFF_DISTANCE` (distance = 1 − similarity)
-- `CPU_CORES` :contentReference[oaicite:3]{index=3}  
+This toolkit uses **RDKit** for parallelized **Butina clustering** on **ECFP4 (Morgan) fingerprints** with **Tanimoto similarity**, then validates the chosen subset via **physicochemical properties**, **Murcko scaffolds**, **PAINS alerts**, and **chemical space mapping** (e.g., PCA).
 
 ---
 
-### 2) `diversity_subset_validation.py` (Validation)
-Validates the selected subset against the parent library and exports:
-- Detailed **TXT report**
-- Distribution plots (MW, LogP, TPSA, HBD, HBA, RotB)
-- Radar plot, similarity heatmap, and coverage plot :contentReference[oaicite:4]{index=4}  
+## Description
 
-**Main settings (edit at top of the file):**
-- `FULL_LIB_PATH` (parent SDF)
-- `SUBSET_LIB_PATH` (selected subset SDF)
-- `REPORT_FILE`
-- `PLOT_PREFIX` :contentReference[oaicite:5]{index=5}  
+Reducing huge chemical libraries into manageable, representative subsets is a common bottleneck for:
+- virtual screening pipelines,
+- docking/MD campaigns,
+- experimental purchasing/testing,
+- broad scaffold exploration and chemical space coverage analysis.
+
+This repository solves that in **two stages**:
+
+### 1) Selection (Diversity Picking)
+- Generates Morgan fingerprints (ECFP4)
+- Computes pairwise distances efficiently (parallelized)
+- Runs **Butina clustering**
+- Selects **representative cluster centroids** to match a target subset size
+
+### 2) Validation (Chemical Space Coverage)
+Compares the **subset vs the full library** using:
+- physicochemical property distributions
+- **Murcko scaffold** coverage
+- **PAINS** (Pan-Assay Interference Compounds) alerts
+- chemical space mapping (**PCA**)
+- overlap plots (radar), similarity/coverage plots (heatmaps, histograms), and distribution plots (KDE)
+
+---
+
+## Key Features
+
+- **Parallelized Processing**
+  - Fast fingerprint generation and distance calculations using `multiprocessing`.
+
+- **Butina Clustering (ECFP4/Tanimoto)**
+  - Selects cluster representatives based on a user-defined **distance cutoff**.
+
+- **Structural Validation**
+  - Automated **Murcko Scaffolds** analysis and **PAINS** alerts.
+
+- **Automated Reporting**
+  - Generates a structured **TXT** statistical report.
+  - Writes **SDF** outputs with cluster metadata.
+
+- **Publication-Ready Plots**
+  - PCA visualizations
+  - Radar plots for property overlap
+  - Similarity heatmaps
+  - Coverage histograms and distribution plots (KDE)
+
+---
+
+## Understanding Butina Cutoff Thresholds
+
+The selector uses a **Distance Threshold**:
+
+\[
+Distance = 1 - Similarity
+\]
+
+Choosing the cutoff is critical because it defines the “neighborhood radius” of a cluster:
+
+- **Cutoff 0.20** *(Sim ≥ 0.80)* → Very tight clusters (close analogs)
+- **Cutoff 0.40** *(Sim ≥ 0.60)* → Moderate similarity
+- **Cutoff 0.65** *(Sim ≥ 0.35)* → Diverse clustering (**recommended for broad scaffold hopping**)
+- **Cutoff 0.80** *(Sim ≥ 0.20)* → Very loose clustering
+
+**Default:** `0.65` to ensure high structural diversity and broad chemical space coverage.
+
+---
+
+## Requirements
+
+- **Python:** `>= 3.8`
+
+### Dependencies
+- `rdkit`
+- `numpy`
+- `pandas`
+- `matplotlib`
+- `seaborn`
+- `scikit-learn`
 
 ---
 
 ## Installation
 
-Recommended (conda):
+### Option 1: pip
 ```bash
-conda create -n chemdiv python=3.10 -y
-conda activate chemdiv
-conda install -c conda-forge rdkit -y
-pip install numpy pandas matplotlib seaborn scikit-learn
+pip install numpy pandas matplotlib seaborn scikit-learn rdkit
+
+---
 
 ## Citation
+
 If you use this repository/scripts in academic work, please cite:
 
 Isaoğlu, M., & Durdağı, S. (2025). *Butina Diversity Selection & Subset Validation Tool* (Version 1.0) [Source code]. https://github.com/DurdagiLab/butina-diversity-toolkit
