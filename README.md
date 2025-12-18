@@ -45,3 +45,8 @@ conda create -n chemdiv python=3.10 -y
 conda activate chemdiv
 conda install -c conda-forge rdkit -y
 pip install numpy pandas matplotlib seaborn scikit-learn
+
+## Citation
+If you use this repository/scripts in academic work, please cite:
+
+Isaoğlu, M., & Durdağı, S. (2025). *Butina Diversity Selection & Subset Validation Tool* (Version 1.0) [Source code]. https://github.com/DurdagiLab/butina-diversity-toolkit
